@@ -1,0 +1,72 @@
+#!/usr/bin/env python
+
+
+# Copyright 2015 Soltra Solutions, LLC
+#
+# Licensed under the Soltra License, Version 2.0 (the "License"); you
+# may not use this file except in compliance with the License.
+#
+# You may obtain a copy of the License at
+# http://www.soltra.com/licenses/license-2.0.txt
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+#
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+#
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+from docopt import docopt
+from lib.cti import taxii_poll
+
+# pseudocode for stix/cybox metrics tool
+# ======================================
+# * cli that takes username/password/taxii url
+# * poll feed from epoch start to utc now
+# * build dict keyed off uuid / {stix,cybox} type (dedup, in case of idrefs, etc)
+# * spew out stats: total objects / object type => %
+# * spew out counts, let the user decide whether to include them...
+
+
+__version__ = '0.1'
+__doc__ = '''cti-stats: utility for gathering anonymized metrics about stix/cybox object usage
+
+Usage:
+    cti-stats [options] --user=USER --passwd=PASSWD --stats
+
+    cti-stats --help
+    cti-stats --version
+
+
+Options:
+    -u USER --user=USER                     Specify TAXII user
+    -p PASSWD --passwd=PASSWD               Specify TAXII password
+    -h HOST --host=HOST                     Specify TAXII host [default: 127.0.0.1]
+    -P PORT --port=PORT                     Specify TAXII port [default: 443]
+    -e ENDPOINT --endpoint=ENDPOINT         Specify TAXII url endpoint [default: /taxii-data]
+    -c COLLECTION --collection=COLLECTION   Specify TAXII collection [default: system.Default]
+    -s USE_SSL --use-ssl=USE_SSL            Use SSL? [default: yes]
+    -v VALIDATE --validate-cert=VALIDATE    Attempt SSL cert validation? [default: yes]
+    -H --help                               Show this screen.
+    -V --version                            Show version.
+
+Please report bugs / issues to https://github.com/soltra/cti-stats/issues
+'''
+
+def main():
+    # parse cli args...
+    args = docopt(__doc__, version=__version__)
+    if args['--stats']:
+        args['--use-ssl'] = args['--use-ssl'] == 'yes'
+        args['--validate-cert'] = args['--validate-cert'] == 'yes'
+        stuff = taxii_poll(args['--host'], args['--port'], args['--endpoint'], \
+              args['--collection'], args['--user'], args['--passwd'], \
+              args['--use-ssl'], args['--validate-cert'])
+
+
+if __name__ == '__main__':
+    main()
+
