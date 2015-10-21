@@ -67,7 +67,7 @@ def process_taxii_content_blocks(content_block):
 
 
 def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, passwd=None, use_ssl=None, attempt_validation=None):
-    '''pull cti via taxii'''
+    '''poll cti via taxii'''
     client = tc.HttpClient()
     client.setUseHttps(use_ssl)
     client.setAuthType(client.AUTH_BASIC)
