@@ -26,6 +26,7 @@ import libtaxii.messages_10 as tm10
 import libtaxii.messages_11 as tm11
 from stix.core import STIXPackage
 from util import epoch_start, nowutc
+from StringIO import StringIO
 
 
 def process_taxii_content_blocks(content_block):
@@ -33,19 +34,36 @@ def process_taxii_content_blocks(content_block):
     incidents = dict()
     indicators = dict()
     observables = dict()
-    xml = StringIO.StringIO(content_block.content)
+    xml = StringIO(content_block.content)
     stix_package = STIXPackage.from_xml(xml)
     xml.close()
-    # if stix_package.incidents:
-    #     for j in stix_package.incidents:
-    #         incidents[j.id_] = j
-    # if stix_package.indicators:
-    #     for i in stix_package.indicators:
-    #         indicators[i.id_] = i
-    # if stix_package.observables:
-    #     for o in stix_package.observables.observables:
-    #         observables[o.id_] = o
-    # return(incidents, indicators, observables)
+    raw_stix_objs = {'campaigns': set(), 'courses_of_action': set(), \
+                        'exploit_targets': set(), 'incidents': set(), \
+                        'indicators': set(), 'threat_actors': set(), \
+                        'ttps': set()}
+    raw_cybox_objs = dict()
+    for k in raw_stix_objs.keys():
+        for i in getattr(stix_package, k):
+            raw_stix_objs[k].add(i.id_)
+            if k == 'indicators' and len(i.observables):
+                for j in i.observables:
+                    if j.idref:
+                        next
+                    else:
+                        obs_type = str(type(j.object_.properties)).split('.')[-1:][0].split("'")[0]
+                        if not obs_type in raw_cybox_objs.keys():
+                            raw_cybox_objs[obs_type] = set()
+                        raw_cybox_objs[obs_type].add(j.id_)
+    if stix_package.observables:
+        for i in stix_package.observables:
+            if i.idref:
+                next
+            else:
+                obs_type = str(type(i.object_.properties)).split('.')[-1:][0].split("'")[0]
+                if not obs_type in raw_cybox_objs.keys():
+                    raw_cybox_objs[obs_type] = set()
+                raw_cybox_objs[obs_type].add(i.id_)
+    return(raw_stix_objs, raw_cybox_objs)
 
 
 def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, passwd=None, use_ssl=None, attempt_validation=None):
@@ -74,15 +92,18 @@ def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, 
         print('''TAXII connection error! Exiting...
 %s''' % (taxii_message.message))
     elif isinstance(taxii_message, tm10.PollResponse):
-        import pudb; pu.db
-        pass
-        # incidents = dict()
-        # indicators = dict()
-        # observables = dict()
-        # for content_block in taxii_message.content_blocks:
-        #     (incidents_, indicators_, observables_) = \
-        #         process_taxii_content_blocks(config, content_block)
-        #     incidents.update(incidents_)
-        #     indicators.update(indicators_)
-        #     observables.update(observables_)
-        return(latest, incidents, indicators, observables)
+        cooked_stix_objs = {'campaigns': set(), 'courses_of_action': set(), \
+                     'exploit_targets': set(), 'incidents': set(), \
+                     'indicators': set(), 'threat_actors': set(), \
+                     'ttps': set()}
+        cooked_cybox_objs = dict()
+        for content_block in taxii_message.content_blocks:
+            (raw_stix_objs, raw_cybox_objs) = \
+                process_taxii_content_blocks(content_block)
+            for k in raw_stix_objs.keys():
+                cooked_stix_objs[k].update(raw_stix_objs[k])
+            for k in raw_cybox_objs.keys():
+                if not k in cooked_cybox_objs.keys():
+                    cooked_cybox_objs[k] = set()
+                cooked_cybox_objs[k].update(raw_cybox_objs[k])
+        return(cooked_stix_objs, cooked_cybox_objs)
