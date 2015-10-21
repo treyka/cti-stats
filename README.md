@@ -36,6 +36,5 @@ How to install it?
      Refer to the output of `./cti-stats --help` for clarification.
    * For an example, to run cti-stats against
      [Hail a TAXII](http://hailataxii.com): 
-     `./cti-stats --user=guest --pass='guest' --host=hailataxii.com
-     --port=80 --use-ssl=False --validate-cert=False --stats`
+     `./cti-stats --user=guest --pass='guest' --host=hailataxii.com --port=80 --use-ssl=False --validate-cert=False --stats`
 
