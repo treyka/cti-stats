@@ -29,4 +29,12 @@ How to install it?
    requirements.txt`
 6. Configure a temporary account on your CTI repository (Soltra Edge
    or whatever. which is authorized to poll your entire repository.
-7. 
+7. Review cti-stats usage: `./cti-stats --help`
+8. Run cti-stats, passing the appropriate arguments depending on your
+   environment
+   * Certain parameters have defaults if not otherwise specified.
+     Refer to the output of `./cti-stats --help` for clarification.
+   * For an example, to run cti-stats against Hail a TAXII:
+     `./cti-stats --user=guest --pass='guest' --host=hailataxii.com
+     --port=80 --use-ssl=False --validate-cert=False --stats`
+
