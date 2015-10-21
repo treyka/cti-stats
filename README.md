@@ -48,14 +48,14 @@ How to install it?
    cup of coffee or work on something else while this runs in the
    background.
 10. Eventually, you should get some output that looks like this:
-    ```+-------STIX stats------------------------------------------------------+
-    +-------STIX percentages------------------------------------------------+
-    ttps: 6.00%
-    indicators: 93.00%
-    +-------STIX counts-----------------------------------------------------+
-    ttps: 62
-    indicators: 914
-    Total STIX objects: 976
+```+-------STIX stats------------------------------------------------------+
++-------STIX percentages------------------------------------------------+
+ttps: 6.00%
+indicators: 93.00%
++-------STIX counts-----------------------------------------------------+
+ttps: 62
+indicators: 914
+Total STIX objects: 976
 
 +-------CybOX stats-----------------------------------------------------+
 +-------CybOX percentages-----------------------------------------------+
