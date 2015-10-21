@@ -53,7 +53,8 @@ How to install it?
     * [Ivan Kirillov](mailto:ikirillov@mitre.org)
     * You may opt to omit the total counts info for confidentiality
       reasons but at least send us the percentages!
-```+-------STIX stats------------------------------------------------------+
+```
++-------STIX stats------------------------------------------------------+
 +-------STIX percentages------------------------------------------------+
 ttps: 6.00%
 indicators: 93.00%
