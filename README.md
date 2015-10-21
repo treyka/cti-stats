@@ -21,12 +21,18 @@ How to install it?
 ==================
 1) Clone this repository: `git clone
 https://github.com/Soltra/cti-stats.git`
+
 2) `cd cti-stats`
+
 3) Instantiate a Python virtual environment: `virtualenv python_env`
+
 4) Activate the Python virtual environment: `source
 python_env/bin/activate`
+
 5) Install the necessary Python dependencies: `pip install -r
 requirements.txt`
+
 6) Configure a temporary account on your CTI repository (Soltra Edge
 or whatever) which is authorized to poll your entire repository.
+
 7) 
