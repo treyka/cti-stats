@@ -22,14 +22,6 @@
 from docopt import docopt
 from lib.cti import taxii_poll
 
-# pseudocode for stix/cybox metrics tool
-# ======================================
-# * cli that takes username/password/taxii url
-# * poll feed from epoch start to utc now
-# * build dict keyed off uuid / {stix,cybox} type (dedup, in case of idrefs, etc)
-# * spew out stats: total objects / object type => %
-# * spew out counts, let the user decide whether to include them...
-
 
 __version__ = '0.1'
 __doc__ = '''cti-stats: utility for gathering anonymized metrics about stix/cybox object usage
@@ -56,6 +48,7 @@ Options:
 Please report bugs / issues to https://github.com/soltra/cti-stats/issues
 '''
 
+
 def main():
     # parse cli args...
     args = docopt(__doc__, version=__version__)
@@ -66,28 +59,28 @@ def main():
             args['--port'], args['--endpoint'], \
             args['--collection'], args['--user'], args['--passwd'], \
             args['--use-ssl'], args['--validate-cert'])
-        print('+++STIX statistics+++')
+        print('+-------STIX stats------------------------------------------------------+')
         stix_total = 0
         for k in cooked_stix_objs.keys():
             stix_total += len(cooked_stix_objs[k])
+        print('+-------STIX percentages------------------------------------------------+')
         for k in cooked_stix_objs.keys():
             if len(cooked_stix_objs[k]):
                 print("%s: %s" % (k, '{1:.{0}f}%'.format(2, ((len(cooked_stix_objs[k]) * 100) / stix_total))))
-            else:
-                print("%s: 0" % (k) + '%')
+        print('+-------STIX counts-----------------------------------------------------+')
         for k in cooked_stix_objs.keys():
             print("%s: %i" % (k, len(cooked_stix_objs[k])))
         print("Total STIX objects: %i" % (stix_total))
-        print()
-        print('+++CybOX statistics+++')
+        print('')
+        print('+-------CybOX stats-----------------------------------------------------+')
         cybox_total = 0
         for k in cooked_cybox_objs.keys():
             cybox_total += len(cooked_cybox_objs[k])
+        print('+-------CybOX percentages-----------------------------------------------+')
         for k in cooked_cybox_objs.keys():
             if len(cooked_cybox_objs[k]):
                 print("%s: %s" % (k, '{1:.{0}f}%'.format(2, ((len(cooked_cybox_objs[k]) * 100) / cybox_total))))
-            else:
-                print("%s: 0" % (k) + '%')
+        print('+-------CybOX counts----------------------------------------------------+')
         for k in cooked_cybox_objs.keys():
             print("%s: %i" % (k, len(cooked_cybox_objs[k])))
         print("Total CybOX objects: %i" % (cybox_total))
