@@ -48,7 +48,22 @@ How to install it?
    cup of coffee or work on something else while this runs in the
    background.
 10. Eventually, you should get some output that looks like this:
-    ```output goes here```
+    ```+-------STIX stats------------------------------------------------------+
+    +-------STIX percentages------------------------------------------------+
+    ttps: 6.00%
+    indicators: 93.00%
+    +-------STIX counts-----------------------------------------------------+
+    ttps: 62
+    indicators: 914
+    Total STIX objects: 976
+
++-------CybOX stats-----------------------------------------------------+
++-------CybOX percentages-----------------------------------------------+
+DomainName: 100.00%
++-------CybOX counts----------------------------------------------------+
+DomainName: 914
+Total CybOX objects: 914
+```
 11. Send the output to one or more of the OASIS CTI co-chairs:
     * [Trey Darley](mailto:trey@soltra.com)
     * [Ivan Kirillov](mailto:ikirillov@mitre.org)
