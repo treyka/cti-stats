@@ -21,6 +21,11 @@ How to install it?
 ==================
 1. Clone this repository: `git clone
    https://github.com/Soltra/cti-stats.git`
+   * It's recommended that you *do not* run cti-stats on your
+     production repository to avoid resource-contention. Of course,
+     you're free to point cti-stats at localhost, but it's wiser to
+     run it from a different box. (For ideal performance, a box
+     collocated in the same network subnet.)
 2. `cd cti-stats`
 3. Instantiate a Python virtual environment: `virtualenv python_env`
 4. Activate the Python virtual environment: `source
@@ -36,5 +41,16 @@ How to install it?
      Refer to the output of `./cti-stats --help` for clarification.
    * For an example, to run cti-stats against
      [Hail a TAXII](http://hailataxii.com): 
-     `./cti-stats --user=guest --pass='guest' --host=hailataxii.com --port=80 --use-ssl=False --validate-cert=False --stats`
-
+     `./cti-stats --user=guest --pass='guest' --host=hailataxii.com
+     --port=80 --use-ssl=False --validate-cert=False --stats`
+9. Depending on the quantity of CTI data in your repository, you might
+   have to wait a while for the results to be computed so go make a
+   cup of coffee or work on something else while this runs in the
+   background.
+10. Eventually, you should get some output that looks like this:
+    ```output goes here```
+11. Send the output to one or more of the OASIS CTI co-chairs:
+    * [Trey Darley](mailto:trey@soltra.com)
+    * [Ivan Kirillov](mailto:ikirillov@mitre.org)
+    * You may opt to omit the total counts info for confidentiality
+      reasons but at least send us the percentages!
