@@ -48,6 +48,11 @@ How to install it?
    cup of coffee or work on something else while this runs in the
    background.
 10. Eventually, you should get some output that looks like this:
+11. Send the output to one or more of the OASIS CTI co-chairs:
+    * [Trey Darley](mailto:trey@soltra.com)
+    * [Ivan Kirillov](mailto:ikirillov@mitre.org)
+    * You may opt to omit the total counts info for confidentiality
+      reasons but at least send us the percentages!
 ```+-------STIX stats------------------------------------------------------+
 +-------STIX percentages------------------------------------------------+
 ttps: 6.00%
@@ -64,8 +69,3 @@ DomainName: 100.00%
 DomainName: 914
 Total CybOX objects: 914
 ```
-11. Send the output to one or more of the OASIS CTI co-chairs:
-    * [Trey Darley](mailto:trey@soltra.com)
-    * [Ivan Kirillov](mailto:ikirillov@mitre.org)
-    * You may opt to omit the total counts info for confidentiality
-      reasons but at least send us the percentages!
