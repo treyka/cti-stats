@@ -24,7 +24,7 @@ from lib.cti import taxii_poll
 
 
 __version__ = '0.1'
-__doc__ = '''cti-stats: utility for gathering anonymized metrics about stix/cybox object usage
+__doc__ = '''cti-stats: utility for gathering anonymized metrics about STIX/CybOX object usage
 
 Usage:
     cti-stats [options] --user=USER --passwd=PASSWD --stats
