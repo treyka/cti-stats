@@ -20,14 +20,15 @@
 
 
 from docopt import docopt
-from lib.cti import taxii_poll
+from lib.cti import taxii_poll, print_stats, dir_walk
 
 
-__version__ = '0.1'
+__version__ = '0.2'
 __doc__ = '''cti-stats: utility for gathering anonymized metrics about STIX/CybOX object usage
 
 Usage:
-    cti-stats [options] --user=USER --passwd=PASSWD --stats
+    cti-stats [options] --user=USER --passwd=PASSWD --taxii-stats
+    cti-stats [options] --target-dir=TARGET_DIR --file-stats
 
     cti-stats --help
     cti-stats --version
@@ -42,6 +43,7 @@ Options:
     -c COLLECTION --collection=COLLECTION   Specify TAXII collection [default: system.Default]
     -s USE_SSL --use-ssl=USE_SSL            Use SSL? [default: yes]
     -v VALIDATE --validate-cert=VALIDATE    Attempt SSL cert validation? [default: yes]
+    -t TARGET_DIR --target-dir=TARGET_DIR   Specify target directory containing CTI
     -H --help                               Show this screen.
     -V --version                            Show version.
 
@@ -52,39 +54,16 @@ Please report bugs / issues to https://github.com/soltra/cti-stats/issues
 def main():
     # parse cli args...
     args = docopt(__doc__, version=__version__)
-    if args['--stats']:
+    if args['--taxii-stats']:
         args['--use-ssl'] = args['--use-ssl'] == 'yes'
         args['--validate-cert'] = args['--validate-cert'] == 'yes'
         (cooked_stix_objs, cooked_cybox_objs) = taxii_poll(args['--host'], \
             args['--port'], args['--endpoint'], \
             args['--collection'], args['--user'], args['--passwd'], \
             args['--use-ssl'], args['--validate-cert'])
-        print('+-------STIX stats------------------------------------------------------+')
-        stix_total = 0
-        for k in cooked_stix_objs.keys():
-            stix_total += len(cooked_stix_objs[k])
-        print('+-------STIX percentages------------------------------------------------+')
-        for k in cooked_stix_objs.keys():
-            if len(cooked_stix_objs[k]):
-                print("%s: %s" % (k, '{1:.{0}f}%'.format(2, ((len(cooked_stix_objs[k]) * 100) / stix_total))))
-        print('+-------STIX counts-----------------------------------------------------+')
-        for k in cooked_stix_objs.keys():
-            print("%s: %i" % (k, len(cooked_stix_objs[k])))
-        print("Total STIX objects: %i" % (stix_total))
-        print('')
-        print('+-------CybOX stats-----------------------------------------------------+')
-        cybox_total = 0
-        for k in cooked_cybox_objs.keys():
-            cybox_total += len(cooked_cybox_objs[k])
-        print('+-------CybOX percentages-----------------------------------------------+')
-        for k in cooked_cybox_objs.keys():
-            if len(cooked_cybox_objs[k]):
-                print("%s: %s" % (k, '{1:.{0}f}%'.format(2, ((len(cooked_cybox_objs[k]) * 100) / cybox_total))))
-        print('+-------CybOX counts----------------------------------------------------+')
-        for k in cooked_cybox_objs.keys():
-            print("%s: %i" % (k, len(cooked_cybox_objs[k])))
-        print("Total CybOX objects: %i" % (cybox_total))
-
+    elif args['--file-stats']:
+        (cooked_stix_objs, cooked_cybox_objs) = dir_walk(args['--target-dir'])
+    print_stats(cooked_stix_objs, cooked_cybox_objs)
 
 if __name__ == '__main__':
     main()
