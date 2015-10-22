@@ -22,6 +22,8 @@
 from dateutil.tz import tzutc
 import datetime
 import pytz
+import os
+import fnmatch
 
 
 def nowutc():
@@ -33,3 +35,17 @@ def epoch_start():
     '''it was the best of times, it was the worst of times...'''
     return datetime.datetime.utcfromtimestamp(0).replace(tzinfo=pytz.utc)
 
+
+def gen_find(pattern, top):
+    '''A function that generates files that match a given filename pattern
+    [with thanks/apologies to David Beazley for inspiration => http://www.dabeaz.com/generators-uk/genfind.py]'''
+    for path, dirlist, filelist in os.walk(top):
+        for name in fnmatch.filter(dirlist, pattern):
+            yield os.path.join(path,name)
+        for name in fnmatch.filter(filelist, pattern):
+            yield os.path.join(path,name)
+
+
+def resolve_path(dir):
+    '''checks whether path starts with '~', if so resolves to full path, returns resolved path'''
+    return os.path.expanduser(dir)
