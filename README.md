@@ -32,22 +32,44 @@ How to install it?
    python_env/bin/activate`
 5. Install the necessary Python dependencies: `pip install -r
    requirements.txt`
-6. Configure a temporary account on your CTI repository (Soltra Edge
+
+How to run it?
+==============
+* You have two basic options: polling a TAXII feed or recursing
+  through a directory containing CTI.
+
+Polling a TAXII feed
+--------------------
+1. Configure a temporary account on your CTI repository (Soltra Edge
    or whatever. which is authorized to poll your entire repository.
-7. Review cti-stats usage: `./cti-stats --help`
-8. Run cti-stats, passing the appropriate arguments depending on your
+2. Review cti-stats usage: `./cti-stats --help`
+3. Run cti-stats, passing the appropriate arguments depending on your
    environment
    * Certain parameters have defaults if not otherwise specified.
      Refer to the output of `./cti-stats --help` for clarification.
    * For an example, to run cti-stats against
      [Hail a TAXII](http://hailataxii.com): 
      `./cti-stats --user=guest --pass='guest' --host=hailataxii.com
-     --port=80 --use-ssl=False --validate-cert=False --stats`
-9. Depending on the quantity of CTI data in your repository, you might
+     --port=80 --use-ssl=False --validate-cert=False --taxii-stats`
+
+Recursing a directory
+---------------------
+1. Identify a directory containing CTI you wish to analyze.
+2. Review cti-stats usage: `./cti-stats --help`
+3. Run cti-stats, passing the appropriate arguments depending on your
+   environment
+   * Certain parameters have defaults if not otherwise specified.
+     Refer to the output of `./cti-stats --help` for clarification.
+   * For an example: `./cti-stats --target-dir=~/cti_sample_data/ --file-stats`
+
+
+What to do with your analysis results
+=====================================
+1. Depending on the quantity of CTI data in your repository, you might
    have to wait a while for the results to be computed so go make a
    cup of coffee or work on something else while this runs in the
    background.
-10. Eventually, you should get some output that looks like this:
+2. Eventually, you should get some output that looks like this:
 ```
 +-------STIX stats------------------------------------------------------+
 +-------STIX percentages------------------------------------------------+
@@ -65,7 +87,7 @@ DomainName: 100.00%
 DomainName: 914
 Total CybOX objects: 914
 ```
-11. Send the output to one or more of the OASIS CTI co-chairs:
+3.  Send the output to one or more of the OASIS CTI co-chairs:
     * [Trey Darley](mailto:trey@soltra.com)
     * [Ivan Kirillov](mailto:ikirillov@mitre.org)
     * You may opt to omit the total counts info for confidentiality
