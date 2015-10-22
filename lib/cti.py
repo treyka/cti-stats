@@ -25,18 +25,29 @@ import libtaxii.clients as tc
 import libtaxii.messages_10 as tm10
 import libtaxii.messages_11 as tm11
 from stix.core import STIXPackage
-from util import epoch_start, nowutc
+from util import epoch_start, nowutc, gen_find, resolve_path
 from StringIO import StringIO
 
 
-def process_taxii_content_blocks(content_block):
-    '''process taxii content blocks'''
-    incidents = dict()
-    indicators = dict()
-    observables = dict()
+
+def taxii_content_block_to_stix(content_block):
+    '''transform taxii content blocks into stix packages'''
     xml = StringIO(content_block.content)
     stix_package = STIXPackage.from_xml(xml)
     xml.close()
+    return stix_package
+
+
+def file_to_stix(file_):
+    '''transform files into stix packages'''
+    return STIXPackage.from_xml(file_)
+
+
+def process_stix_pkg(stix_package):
+    '''process stix packages'''
+    incidents = dict()
+    indicators = dict()
+    observables = dict()
     raw_stix_objs = {'campaigns': set(), 'courses_of_action': set(), \
                         'exploit_targets': set(), 'incidents': set(), \
                         'indicators': set(), 'threat_actors': set(), \
@@ -98,8 +109,9 @@ def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, 
                      'ttps': set()}
         cooked_cybox_objs = dict()
         for content_block in taxii_message.content_blocks:
+            stix_package = taxii_content_block_to_stix(content_block)
             (raw_stix_objs, raw_cybox_objs) = \
-                process_taxii_content_blocks(content_block)
+                process_stix_pkg(stix_package)
             for k in raw_stix_objs.keys():
                 cooked_stix_objs[k].update(raw_stix_objs[k])
             for k in raw_cybox_objs.keys():
@@ -107,3 +119,58 @@ def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, 
                     cooked_cybox_objs[k] = set()
                 cooked_cybox_objs[k].update(raw_cybox_objs[k])
         return(cooked_stix_objs, cooked_cybox_objs)
+
+
+def dir_walk(target_dir):
+    '''recursively walk a directory containing cti and return the stats'''
+    files = gen_find('*.xml', resolve_path(target_dir))
+    cooked_stix_objs = {'campaigns': set(), 'courses_of_action': set(), \
+                        'exploit_targets': set(), 'incidents': set(), \
+                        'indicators': set(), 'threat_actors': set(), \
+                        'ttps': set()}
+    cooked_cybox_objs = dict()
+    for file_ in files:
+        try:
+            stix_package = file_to_stix(file_)
+            (raw_stix_objs, raw_cybox_objs) = \
+                process_stix_pkg(stix_package)
+            for k in raw_stix_objs.keys():
+                cooked_stix_objs[k].update(raw_stix_objs[k])
+            for k in raw_cybox_objs.keys():
+                if not k in cooked_cybox_objs.keys():
+                    cooked_cybox_objs[k] = set()
+                cooked_cybox_objs[k].update(raw_cybox_objs[k])
+        except:
+            next
+    return (cooked_stix_objs, cooked_cybox_objs)
+
+
+def print_stats(cooked_stix_objs, cooked_cybox_objs):
+    '''print cti stats'''
+    print('+-------STIX stats------------------------------------------------------+')
+    stix_total = 0
+    for k in cooked_stix_objs.keys():
+        stix_total += len(cooked_stix_objs[k])
+    print('+-------STIX percentages------------------------------------------------+')
+    for k in cooked_stix_objs.keys():
+        if len(cooked_stix_objs[k]):
+            print("%s: %s" % (k, '{1:.{0}f}%'.format(2, (float(len(cooked_stix_objs[k]) * 100) / float(stix_total)))))
+    print('+-------STIX counts-----------------------------------------------------+')
+    for k in cooked_stix_objs.keys():
+        if len(cooked_stix_objs[k]):
+            print("%s: %i" % (k, len(cooked_stix_objs[k])))
+    print("Total STIX objects: %i" % (stix_total))
+    print('')
+    print('+-------CybOX stats-----------------------------------------------------+')
+    cybox_total = 0
+    for k in cooked_cybox_objs.keys():
+        cybox_total += len(cooked_cybox_objs[k])
+    print('+-------CybOX percentages-----------------------------------------------+')
+    for k in cooked_cybox_objs.keys():
+        if len(cooked_cybox_objs[k]):
+            print("%s: %s" % (k, '{1:.{0}f}%'.format(2, (float(len(cooked_cybox_objs[k]) * 100) / float(cybox_total)))))
+    print('+-------CybOX counts----------------------------------------------------+')
+    for k in cooked_cybox_objs.keys():
+        if len(cooked_cybox_objs[k]):
+            print("%s: %i" % (k, len(cooked_cybox_objs[k])))
+    print("Total CybOX objects: %i" % (cybox_total))
