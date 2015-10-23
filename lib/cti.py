@@ -22,12 +22,13 @@
 from libtaxii.constants import *
 import libtaxii as t
 import libtaxii.clients as tc
-import libtaxii.messages_10 as tm10
 import libtaxii.messages_11 as tm11
 from stix.core import STIXPackage
-from util import epoch_start, nowutc, gen_find, resolve_path
+from util import poll_start, nowutc, gen_find, resolve_path
 from StringIO import StringIO
-
+from progressbar import ProgressBar, ETA, Percentage, Bar, RotatingMarker
+import datetime
+import pytz
 
 
 def taxii_content_block_to_stix(content_block):
@@ -45,9 +46,6 @@ def file_to_stix(file_):
 
 def process_stix_pkg(stix_package):
     '''process stix packages'''
-    incidents = dict()
-    indicators = dict()
-    observables = dict()
     raw_stix_objs = {'campaigns': set(), 'courses_of_action': set(), \
                         'exploit_targets': set(), 'incidents': set(), \
                         'indicators': set(), 'threat_actors': set(), \
@@ -70,10 +68,11 @@ def process_stix_pkg(stix_package):
             if i.idref:
                 next
             else:
-                obs_type = str(type(i.object_.properties)).split('.')[-1:][0].split("'")[0]
-                if not obs_type in raw_cybox_objs.keys():
-                    raw_cybox_objs[obs_type] = set()
-                raw_cybox_objs[obs_type].add(i.id_)
+                if i.object_:
+                    obs_type = str(type(i.object_.properties)).split('.')[-1:][0].split("'")[0]
+                    if not obs_type in raw_cybox_objs.keys():
+                        raw_cybox_objs[obs_type] = set()
+                    raw_cybox_objs[obs_type].add(i.id_)
     return(raw_stix_objs, raw_cybox_objs)
 
 
@@ -85,40 +84,61 @@ def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, 
     client.setAuthCredentials(
         {'username': user,
          'password': passwd})
-    earliest = epoch_start()
+    cooked_stix_objs = {'campaigns': set(), 'courses_of_action': set(), \
+                        'exploit_targets': set(), 'incidents': set(), \
+                        'indicators': set(), 'threat_actors': set(), \
+                        'ttps': set()}
+    cooked_cybox_objs = dict()
+    earliest = poll_start()
     latest = nowutc()
-    poll_request = tm10.PollRequest(
-       message_id=tm10.generate_message_id(),
-        feed_name=collection,
-        exclusive_begin_timestamp_label=earliest,
-        inclusive_end_timestamp_label=latest,
-        content_bindings=[t.CB_STIX_XML_11])
-    http_response = client.callTaxiiService2(
-        host, endpoint,
-        t.VID_TAXII_XML_10, poll_request.to_xml(),
-        port=port)
-    taxii_message = t.get_message_from_http_response(http_response,
-                                                     poll_request.message_id)
-    if isinstance(taxii_message, tm10.StatusMessage):
-        print('''TAXII connection error! Exiting...
+    poll_window = 43200 # 12 hour blocks seem reasonable
+    total_windows = (latest - earliest) / poll_window
+    if (latest - earliest) % poll_window:
+        total_windows += 1
+    widgets = ['TAXII Poll: ', Percentage(), ' ', Bar(marker=RotatingMarker()),
+                ' ', ETA()]
+    progress = ProgressBar(widgets=widgets, maxval=total_windows).start()
+    window_latest = latest
+    window_earliest = window_latest - poll_window
+    for i in range(total_windows):
+        window_latest -= poll_window
+        if window_earliest - poll_window < earliest:
+            window_earliest = earliest
+        else:
+            window_earliest -= poll_window
+        poll_params = tm11.PollParameters(
+            allow_asynch=False,
+            response_type=RT_FULL,
+            content_bindings=[tm11.ContentBinding(binding_id=CB_STIX_XML_11)])
+        poll_request = tm11.PollRequest(
+            message_id=tm11.generate_message_id(),
+            collection_name=collection,
+            exclusive_begin_timestamp_label=datetime.datetime.fromtimestamp(window_earliest).replace(tzinfo=pytz.utc),
+            inclusive_end_timestamp_label=datetime.datetime.fromtimestamp(window_latest).replace(tzinfo=pytz.utc),
+            poll_parameters=(poll_params))
+        http_response = client.callTaxiiService2(
+            host, endpoint,
+            t.VID_TAXII_XML_11, poll_request.to_xml(),
+            port=port)
+        taxii_message = t.get_message_from_http_response(http_response,
+            poll_request.message_id)
+        if isinstance(taxii_message, tm11.StatusMessage):
+            print('''TAXII connection error! Exiting...
 %s''' % (taxii_message.message))
-    elif isinstance(taxii_message, tm10.PollResponse):
-        cooked_stix_objs = {'campaigns': set(), 'courses_of_action': set(), \
-                     'exploit_targets': set(), 'incidents': set(), \
-                     'indicators': set(), 'threat_actors': set(), \
-                     'ttps': set()}
-        cooked_cybox_objs = dict()
-        for content_block in taxii_message.content_blocks:
-            stix_package = taxii_content_block_to_stix(content_block)
-            (raw_stix_objs, raw_cybox_objs) = \
-                process_stix_pkg(stix_package)
-            for k in raw_stix_objs.keys():
-                cooked_stix_objs[k].update(raw_stix_objs[k])
-            for k in raw_cybox_objs.keys():
-                if not k in cooked_cybox_objs.keys():
-                    cooked_cybox_objs[k] = set()
-                cooked_cybox_objs[k].update(raw_cybox_objs[k])
-        return(cooked_stix_objs, cooked_cybox_objs)
+        elif isinstance(taxii_message, tm11.PollResponse):
+            for content_block in taxii_message.content_blocks:
+                stix_package = taxii_content_block_to_stix(content_block)
+                (raw_stix_objs, raw_cybox_objs) = \
+                    process_stix_pkg(stix_package)
+                for k in raw_stix_objs.keys():
+                    cooked_stix_objs[k].update(raw_stix_objs[k])
+                for k in raw_cybox_objs.keys():
+                    if not k in cooked_cybox_objs.keys():
+                        cooked_cybox_objs[k] = set()
+                    cooked_cybox_objs[k].update(raw_cybox_objs[k])
+        progress.update(i)
+    progress.finish()
+    return(cooked_stix_objs, cooked_cybox_objs)
 
 
 def dir_walk(target_dir):
