@@ -53,30 +53,36 @@ def process_stix_pkg(stix_package):
     raw_cybox_objs = dict()
     for k in raw_stix_objs.keys():
         for i in getattr(stix_package, k):
-            raw_stix_objs[k].add(i.id_)
-            if k == 'indicators' and len(i.observables):
-                for j in i.observables:
-                    if j.idref:
-                        next
-                    else:
-                        obs_type = str(type(j.object_.properties)).split('.')[-1:][0].split("'")[0]
-                        if not obs_type in raw_cybox_objs.keys():
-                            raw_cybox_objs[obs_type] = set()
-                        raw_cybox_objs[obs_type].add(j.id_)
+            try:
+                raw_stix_objs[k].add(i.id_)
+                if k == 'indicators' and len(i.observables):
+                    for j in i.observables:
+                        if j.idref:
+                            next
+                        else:
+                            obs_type = str(type(j.object_.properties)).split('.')[-1:][0].split("'")[0]
+                            if not obs_type in raw_cybox_objs.keys():
+                                raw_cybox_objs[obs_type] = set()
+                            raw_cybox_objs[obs_type].add(j.id_)
+            except:
+                next
     if stix_package.observables:
         for i in stix_package.observables:
             if i.idref:
                 next
             else:
-                if i.object_:
-                    obs_type = str(type(i.object_.properties)).split('.')[-1:][0].split("'")[0]
-                    if not obs_type in raw_cybox_objs.keys():
-                        raw_cybox_objs[obs_type] = set()
-                    raw_cybox_objs[obs_type].add(i.id_)
+                try:
+                    if i.object_:
+                        obs_type = str(type(i.object_.properties)).split('.')[-1:][0].split("'")[0]
+                        if not obs_type in raw_cybox_objs.keys():
+                            raw_cybox_objs[obs_type] = set()
+                        raw_cybox_objs[obs_type].add(i.id_)
+                except:
+                    next
     return(raw_stix_objs, raw_cybox_objs)
 
 
-def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, passwd=None, use_ssl=None, attempt_validation=None):
+def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, passwd=None, use_ssl=None, attempt_validation=None, quiet=None):
     '''poll cti via taxii'''
     client = tc.HttpClient()
     client.setUseHttps(use_ssl)
@@ -95,9 +101,10 @@ def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, 
     total_windows = (latest - earliest) / poll_window
     if (latest - earliest) % poll_window:
         total_windows += 1
-    widgets = ['TAXII Poll: ', Percentage(), ' ', Bar(marker=RotatingMarker()),
-                ' ', ETA()]
-    progress = ProgressBar(widgets=widgets, maxval=total_windows).start()
+    if not quiet:
+        widgets = ['TAXII Poll: ', Percentage(), ' ', Bar(marker=RotatingMarker()),
+                   ' ', ETA()]
+        progress = ProgressBar(widgets=widgets, maxval=total_windows).start()
     window_latest = latest
     window_earliest = window_latest - poll_window
     for i in range(total_windows):
@@ -123,30 +130,35 @@ def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, 
         taxii_message = t.get_message_from_http_response(http_response,
             poll_request.message_id)
         if isinstance(taxii_message, tm11.StatusMessage):
-            print('''TAXII connection error! Exiting...
-%s''' % (taxii_message.message))
+            print("TAXII connection error! %s" % (taxii_message.message))
         elif isinstance(taxii_message, tm11.PollResponse):
             for content_block in taxii_message.content_blocks:
                 stix_package = taxii_content_block_to_stix(content_block)
-                (raw_stix_objs, raw_cybox_objs) = \
-                    process_stix_pkg(stix_package)
+                try:
+                    (raw_stix_objs, raw_cybox_objs) = \
+                        process_stix_pkg(stix_package)
+                except:
+                    next
                 for k in raw_stix_objs.keys():
                     cooked_stix_objs[k].update(raw_stix_objs[k])
                 for k in raw_cybox_objs.keys():
                     if not k in cooked_cybox_objs.keys():
                         cooked_cybox_objs[k] = set()
                     cooked_cybox_objs[k].update(raw_cybox_objs[k])
-        progress.update(i)
-    progress.finish()
+        if not quiet:
+            progress.update(i)
+    if not quiet:
+        progress.finish()
     return(cooked_stix_objs, cooked_cybox_objs)
 
 
-def dir_walk(target_dir):
+def dir_walk(target_dir=None, quiet=None):
     '''recursively walk a directory containing cti and return the stats'''
     files = find_files('*.xml', resolve_path(target_dir))
-    widgets = ['Directory Walk: ', Percentage(), ' ', Bar(marker=RotatingMarker()),
-                ' ', ETA()]
-    progress = ProgressBar(widgets=widgets, maxval=len(files)).start()
+    if not quiet:
+        widgets = ['Directory Walk: ', Percentage(), ' ', Bar(marker=RotatingMarker()),
+                   ' ', ETA()]
+        progress = ProgressBar(widgets=widgets, maxval=len(files)).start()
     cooked_stix_objs = {'campaigns': set(), 'courses_of_action': set(), \
                         'exploit_targets': set(), 'incidents': set(), \
                         'indicators': set(), 'threat_actors': set(), \
@@ -163,10 +175,12 @@ def dir_walk(target_dir):
                 if not k in cooked_cybox_objs.keys():
                     cooked_cybox_objs[k] = set()
                 cooked_cybox_objs[k].update(raw_cybox_objs[k])
-            progress.update(i)
+            if not quiet:
+                progress.update(i)
         except:
             next
-    progress.finish()
+    if not quiet:
+        progress.finish()
     return (cooked_stix_objs, cooked_cybox_objs)
 
 
