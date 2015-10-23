@@ -21,6 +21,7 @@
 
 from dateutil.tz import tzutc
 import datetime
+import time
 import pytz
 import os
 import fnmatch
@@ -28,12 +29,20 @@ import fnmatch
 
 def nowutc():
     '''utc now'''
-    return datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+    return int(time.mktime(datetime.datetime.utcnow().replace(tzinfo=pytz.utc).timetuple()))
 
 
 def epoch_start():
     '''it was the best of times, it was the worst of times...'''
     return datetime.datetime.utcfromtimestamp(0).replace(tzinfo=pytz.utc)
+
+
+def poll_start():
+    '''for an all-time poll, rather than starting at the epoch start,
+    given that the STIX 1.0 release was tagged on Github 10.04.2013,
+    assuming a start time of 01.01.2013 seems reasonable'''
+    timestamp = datetime.datetime.strptime('01.01.2013 00:00:00 UTC', '%d.%m.%Y %H:%M:%S %Z')
+    return int(time.mktime(timestamp.timetuple()))
 
 
 def gen_find(pattern, top):
