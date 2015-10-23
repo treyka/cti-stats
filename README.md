@@ -75,19 +75,27 @@ What to do with your analysis results
 ```
 +-------STIX stats------------------------------------------------------+
 +-------STIX percentages------------------------------------------------+
-ttps: 6.00%
-indicators: 93.00%
+ttps: 0.91%
+indicators: 99.09%
 +-------STIX counts-----------------------------------------------------+
-ttps: 62
-indicators: 914
-Total STIX objects: 976
+ttps: 3442
+indicators: 374645
+Total STIX objects: 378087
 
 +-------CybOX stats-----------------------------------------------------+
 +-------CybOX percentages-----------------------------------------------+
-DomainName: 100.00%
+URI: 38.81%
+Address: 28.85%
+Port: 0.62%
+File: 0.30%
+DomainName: 31.41%
 +-------CybOX counts----------------------------------------------------+
-DomainName: 914
-Total CybOX objects: 914
+URI: 192292
+Address: 142963
+Port: 3089
+File: 1488
+DomainName: 155623
+Total CybOX objects: 495455
 ```
 3.  Send the output to one or more of the OASIS CTI co-chairs:
     * [Trey Darley](mailto:trey@soltra.com)
