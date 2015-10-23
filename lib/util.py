@@ -45,14 +45,16 @@ def poll_start():
     return int(time.mktime(timestamp.timetuple()))
 
 
-def gen_find(pattern, top):
-    '''A function that generates files that match a given filename pattern
+def find_files(pattern, top):
+    '''A function that returns a list of files that match a given filename pattern
     [with thanks/apologies to David Beazley for inspiration => http://www.dabeaz.com/generators-uk/genfind.py]'''
+    files = list()
     for path, dirlist, filelist in os.walk(top):
         for name in fnmatch.filter(dirlist, pattern):
-            yield os.path.join(path,name)
+            files.append(os.path.join(path,name))
         for name in fnmatch.filter(filelist, pattern):
-            yield os.path.join(path,name)
+            files.append(os.path.join(path,name))
+    return files
 
 
 def resolve_path(dir):
