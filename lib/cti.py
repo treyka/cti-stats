@@ -24,7 +24,7 @@ import libtaxii as t
 import libtaxii.clients as tc
 import libtaxii.messages_11 as tm11
 from stix.core import STIXPackage
-from util import poll_start, nowutc, gen_find, resolve_path
+from util import poll_start, nowutc, find_files, resolve_path
 from StringIO import StringIO
 from progressbar import ProgressBar, ETA, Percentage, Bar, RotatingMarker
 import datetime
@@ -143,7 +143,10 @@ def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, 
 
 def dir_walk(target_dir):
     '''recursively walk a directory containing cti and return the stats'''
-    files = gen_find('*.xml', resolve_path(target_dir))
+    files = find_files('*.xml', resolve_path(target_dir))
+    widgets = ['Directory Walk: ', Percentage(), ' ', Bar(marker=RotatingMarker()),
+                ' ', ETA()]
+    progress = ProgressBar(widgets=widgets, maxval=len(files)).start()
     cooked_stix_objs = {'campaigns': set(), 'courses_of_action': set(), \
                         'exploit_targets': set(), 'incidents': set(), \
                         'indicators': set(), 'threat_actors': set(), \
@@ -160,8 +163,10 @@ def dir_walk(target_dir):
                 if not k in cooked_cybox_objs.keys():
                     cooked_cybox_objs[k] = set()
                 cooked_cybox_objs[k].update(raw_cybox_objs[k])
+            progress.update(i)
         except:
             next
+    progress.finish()
     return (cooked_stix_objs, cooked_cybox_objs)
 
 
