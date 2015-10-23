@@ -44,6 +44,7 @@ Options:
     -s USE_SSL --use-ssl=USE_SSL            Use SSL? [default: yes]
     -v VALIDATE --validate-cert=VALIDATE    Attempt SSL cert validation? [default: yes]
     -t TARGET_DIR --target-dir=TARGET_DIR   Specify target directory containing CTI
+    -q --quiet                              Run silently (no progressbar)
     -H --help                               Show this screen.
     -V --version                            Show version.
 
@@ -54,15 +55,22 @@ Please report bugs / issues to https://github.com/soltra/cti-stats/issues
 def main():
     # parse cli args...
     args = docopt(__doc__, version=__version__)
+    args['--quiet'] = args['--quiet']
     if args['--taxii-stats']:
         args['--use-ssl'] = args['--use-ssl'] == 'yes'
         args['--validate-cert'] = args['--validate-cert'] == 'yes'
-        (cooked_stix_objs, cooked_cybox_objs) = taxii_poll(args['--host'], \
-            args['--port'], args['--endpoint'], \
-            args['--collection'], args['--user'], args['--passwd'], \
-            args['--use-ssl'], args['--validate-cert'])
+        (cooked_stix_objs, cooked_cybox_objs) = taxii_poll(args['--host'], 
+                                                           args['--port'],
+                                                           args['--endpoint'], 
+                                                           args['--collection'],
+                                                           args['--user'],
+                                                           args['--passwd'],
+                                                           args['--use-ssl'],
+                                                           args['--validate-cert'],
+                                                           args['--quiet'])
     elif args['--file-stats']:
-        (cooked_stix_objs, cooked_cybox_objs) = dir_walk(args['--target-dir'])
+        (cooked_stix_objs, cooked_cybox_objs) = dir_walk(args['--target-dir'],
+                                                         args['--quiet'])
     print_stats(cooked_stix_objs, cooked_cybox_objs)
 
 if __name__ == '__main__':
