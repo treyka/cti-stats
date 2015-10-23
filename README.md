@@ -68,7 +68,9 @@ What to do with your analysis results
 1. Depending on the quantity of CTI data in your repository, you might
    have to wait a while for the results to be computed so go make a
    cup of coffee or work on something else while this runs in the
-   background.
+   background. In any case, cti-stats prints a progressbar with ETA on
+   the console, so even if it takes a long time to run, you at least
+   now how the progress is going.
 2. Eventually, you should get some output that looks like this:
 ```
 +-------STIX stats------------------------------------------------------+
