@@ -23,7 +23,7 @@ from docopt import docopt
 from lib.cti import taxii_poll, print_stats, dir_walk
 
 
-__version__ = '0.2'
+__version__ = '0.3'
 __doc__ = '''cti-stats: utility for gathering anonymized metrics about STIX/CybOX object usage
 
 Usage:
