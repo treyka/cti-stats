@@ -133,18 +133,18 @@ def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, 
             print("TAXII connection error! %s" % (taxii_message.message))
         elif isinstance(taxii_message, tm11.PollResponse):
             for content_block in taxii_message.content_blocks:
-                stix_package = taxii_content_block_to_stix(content_block)
                 try:
+                    stix_package = taxii_content_block_to_stix(content_block)
                     (raw_stix_objs, raw_cybox_objs) = \
                         process_stix_pkg(stix_package)
+                    for k in raw_stix_objs.keys():
+                        cooked_stix_objs[k].update(raw_stix_objs[k])
+                    for k in raw_cybox_objs.keys():
+                        if not k in cooked_cybox_objs.keys():
+                            cooked_cybox_objs[k] = set()
+                        cooked_cybox_objs[k].update(raw_cybox_objs[k])
                 except:
                     next
-                for k in raw_stix_objs.keys():
-                    cooked_stix_objs[k].update(raw_stix_objs[k])
-                for k in raw_cybox_objs.keys():
-                    if not k in cooked_cybox_objs.keys():
-                        cooked_cybox_objs[k] = set()
-                    cooked_cybox_objs[k].update(raw_cybox_objs[k])
         if not quiet:
             progress.update(i)
     if not quiet:
