@@ -44,6 +44,7 @@ Options:
     -s USE_SSL --use-ssl=USE_SSL            Use SSL? [default: yes]
     -v VALIDATE --validate-cert=VALIDATE    Attempt SSL cert validation? [default: yes]
     -t TARGET_DIR --target-dir=TARGET_DIR   Specify target directory containing CTI
+    -r RANGE --time-range=RANGE             Specify a recent time range for polling in seconds (1 day = 86400)
     -q --quiet                              Run silently (no progressbar)
     -H --help                               Show this screen.
     -V --version                            Show version.
@@ -67,6 +68,7 @@ def main():
                                                            args['--passwd'],
                                                            args['--use-ssl'],
                                                            args['--validate-cert'],
+                                                           args['--time-range'],
                                                            args['--quiet'])
     elif args['--file-stats']:
         (cooked_stix_objs, cooked_cybox_objs) = dir_walk(args['--target-dir'],

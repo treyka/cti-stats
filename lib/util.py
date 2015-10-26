@@ -26,7 +26,6 @@ import pytz
 import os
 import fnmatch
 
-
 def nowutc():
     '''utc now'''
     return int(time.mktime(datetime.datetime.utcnow().replace(tzinfo=pytz.utc).timetuple()))
@@ -37,12 +36,16 @@ def epoch_start():
     return datetime.datetime.utcfromtimestamp(0).replace(tzinfo=pytz.utc)
 
 
-def poll_start():
-    '''for an all-time poll, rather than starting at the epoch start,
-    given that the STIX 1.0 release was tagged on Github 10.04.2013,
-    assuming a start time of 01.01.2013 seems reasonable'''
-    timestamp = datetime.datetime.strptime('01.01.2013 00:00:00 UTC', '%d.%m.%Y %H:%M:%S %Z')
-    return int(time.mktime(timestamp.timetuple()))
+def poll_start(timerange=None):
+    timestamp = None
+    if timerange is None:
+        '''for an all-time poll, rather than starting at the epoch start,
+        given that the STIX 1.0 release was tagged on Github 10.04.2013,
+        assuming a start time of 01.01.2013 seems reasonable'''
+        timestamp = datetime.datetime.strptime('01.01.2013 00:00:00 UTC', '%d.%m.%Y %H:%M:%S %Z')
+        return int(time.mktime(timestamp.timetuple()))
+    else:
+        return int(time.time()) - int(timerange)
 
 
 def find_files(pattern, top):

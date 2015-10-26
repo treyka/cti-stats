@@ -82,7 +82,7 @@ def process_stix_pkg(stix_package):
     return(raw_stix_objs, raw_cybox_objs)
 
 
-def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, passwd=None, use_ssl=None, attempt_validation=None, quiet=None):
+def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, passwd=None, use_ssl=None, attempt_validation=None, time_range=None, quiet=None):
     '''poll cti via taxii'''
     client = tc.HttpClient()
     client.setUseHttps(use_ssl)
@@ -95,7 +95,7 @@ def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, 
                         'indicators': set(), 'threat_actors': set(), \
                         'ttps': set()}
     cooked_cybox_objs = dict()
-    earliest = poll_start()
+    earliest = poll_start(time_range)
     latest = nowutc()
     poll_window = 43200 # 12 hour blocks seem reasonable
     total_windows = (latest - earliest) / poll_window
