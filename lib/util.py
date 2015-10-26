@@ -37,15 +37,16 @@ def epoch_start():
 
 
 def poll_start(timerange=None):
+    '''for an all-time poll, rather than starting at the epoch start,
+    given that the STIX 1.0 release was tagged on Github 10.04.2013,
+    assuming a start time of 01.01.2013 seems reasonable; if timerange
+    is specified, use nowutc() - timerange instead of default'''
     timestamp = None
     if timerange is None:
-        '''for an all-time poll, rather than starting at the epoch start,
-        given that the STIX 1.0 release was tagged on Github 10.04.2013,
-        assuming a start time of 01.01.2013 seems reasonable'''
         timestamp = datetime.datetime.strptime('01.01.2013 00:00:00 UTC', '%d.%m.%Y %H:%M:%S %Z')
         return int(time.mktime(timestamp.timetuple()))
     else:
-        return int(time.time()) - int(timerange)
+        return int(nowutc()) - int(timerange)
 
 
 def find_files(pattern, top):
