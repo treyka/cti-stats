@@ -113,6 +113,10 @@ def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, 
             window_earliest = earliest
         else:
             window_earliest -= poll_window
+        if window_latest <= window_earliest:
+            if not quiet:
+                progress.update(i)
+            break
         poll_params = tm11.PollParameters(
             allow_asynch=False,
             response_type=RT_FULL,
