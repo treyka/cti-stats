@@ -47,10 +47,20 @@ Polling a TAXII feed
    environment
    * Certain parameters have defaults if not otherwise specified.
      Refer to the output of `./cti-stats --help` for clarification.
-   * For an example, to run cti-stats against
-     [Hail a TAXII](http://hailataxii.com): 
+   * In normal mode, a progressbar is displayed. If you want to
+     redirect cti-stats output to a file, append `--quiet >
+     my_filename` to your command.
+   * examples
+     * run cti-stats against [Hail a TAXII](http://hailataxii.com): 
      `./cti-stats --user=guest --pass='guest' --host=hailataxii.com
-     --port=80 --use-ssl=False --validate-cert=False --taxii-stats`
+     --port=80 --use-ssl=False --taxii-stats`
+     * run cti-stats against a non-ssl TAXII endpoint: `./cti-stats --user=USERNAME --pass='PASSWORD' --host=HOST_OR_IP
+     --port=80 --use-ssl=False --taxii-stats`
+     * run cti-stats against an ssl TAXII endpoint: `./cti-stats --user=USERNAME --pass='PASSWORD' --host=HOST_OR_IP
+     --port=443 --use-ssl=True --taxii-stats`
+       * If there's a self-signed certificate on the other end,
+         append: `--validate-cert=False`
+     * If two-way ssl authentication is enabled, append: `--ssl-cert=MY_CERT.pem`
 
 Recursing a directory
 ---------------------
@@ -60,6 +70,9 @@ Recursing a directory
    environment
    * Certain parameters have defaults if not otherwise specified.
      Refer to the output of `./cti-stats --help` for clarification.
+   * In normal mode, a progressbar is displayed. If you want to
+     redirect cti-stats output to a file, append `--quiet >
+     my_filename` to your command.
    * For an example: `./cti-stats --target-dir=~/cti_sample_data/ --file-stats`
 
 
@@ -102,3 +115,6 @@ Total CybOX objects: 495455
     * [Ivan Kirillov](mailto:ikirillov@mitre.org)
     * You may opt to omit the total counts info for confidentiality
       reasons but at least send us the percentages!
+    * Ivan and I will be sharing the datasets within the OASIS CTI
+      community *however* we will be anonymizing the names of the
+      organizations who've provided us with stats.
