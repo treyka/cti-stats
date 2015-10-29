@@ -82,14 +82,22 @@ def process_stix_pkg(stix_package):
     return(raw_stix_objs, raw_cybox_objs)
 
 
-def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, passwd=None, use_ssl=None, attempt_validation=None, time_range=None, quiet=None):
+def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, passwd=None, ssl_cert=None, use_ssl=None, attempt_validation=None, time_range=None, quiet=None):
     '''poll cti via taxii'''
     client = tc.HttpClient()
     client.set_use_https(use_ssl)
-    client.setAuthType(client.AUTH_BASIC)
-    client.setAuthCredentials(
-        {'username': user,
-         'password': passwd})
+    if ssl_cert:
+        client.setAuthType(client.AUTH_CERT_BASIC)
+        client.setAuthCredentials(
+            {'username': user,
+             'password': passwd,
+             'key_file': ssl_cert,
+             'cert_file': ssl_cert})
+    else:
+        client.setAuthType(client.AUTH_BASIC)
+        client.setAuthCredentials(
+            {'username': user,
+             'password': passwd})
     cooked_stix_objs = {'campaigns': set(), 'courses_of_action': set(), \
                         'exploit_targets': set(), 'incidents': set(), \
                         'indicators': set(), 'threat_actors': set(), \

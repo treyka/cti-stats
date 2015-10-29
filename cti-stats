@@ -37,6 +37,7 @@ Usage:
 Options:
     -u USER --user=USER                     Specify TAXII user
     -p PASSWD --passwd=PASSWD               Specify TAXII password
+    -C USER_CERT --ssl-cert=USER_CERT       Specify SSL authentication certificate
     -h HOST --host=HOST                     Specify TAXII host [default: 127.0.0.1]
     -P PORT --port=PORT                     Specify TAXII port [default: 443]
     -e ENDPOINT --endpoint=ENDPOINT         Specify TAXII url endpoint [default: /taxii-data]
@@ -66,6 +67,7 @@ def main():
                                                            args['--collection'],
                                                            args['--user'],
                                                            args['--passwd'],
+                                                           args['--ssl-cert'],
                                                            args['--use-ssl'],
                                                            args['--validate-cert'],
                                                            args['--time-range'],
