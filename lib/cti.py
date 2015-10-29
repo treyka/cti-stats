@@ -85,7 +85,7 @@ def process_stix_pkg(stix_package):
 def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, passwd=None, use_ssl=None, attempt_validation=None, time_range=None, quiet=None):
     '''poll cti via taxii'''
     client = tc.HttpClient()
-    client.setUseHttps(use_ssl)
+    client.set_use_https(use_ssl)
     client.setAuthType(client.AUTH_BASIC)
     client.setAuthCredentials(
         {'username': user,

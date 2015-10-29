@@ -56,10 +56,10 @@ Please report bugs / issues to https://github.com/soltra/cti-stats/issues
 def main():
     # parse cli args...
     args = docopt(__doc__, version=__version__)
-    args['--quiet'] = args['--quiet']
     if args['--taxii-stats']:
-        args['--use-ssl'] = args['--use-ssl'] == 'yes'
-        args['--validate-cert'] = args['--validate-cert'] == 'yes'
+        # convert strings to bools
+        args['--use-ssl'] = args['--use-ssl'] == 'True'
+        args['--validate-cert'] = args['--validate-cert'] == 'True'
         (cooked_stix_objs, cooked_cybox_objs) = taxii_poll(args['--host'], 
                                                            args['--port'],
                                                            args['--endpoint'], 
