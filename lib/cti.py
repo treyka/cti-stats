@@ -135,28 +135,31 @@ def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, 
             exclusive_begin_timestamp_label=datetime.datetime.fromtimestamp(window_earliest).replace(tzinfo=pytz.utc),
             inclusive_end_timestamp_label=datetime.datetime.fromtimestamp(window_latest).replace(tzinfo=pytz.utc),
             poll_parameters=(poll_params))
-        http_response = client.callTaxiiService2(
-            host, endpoint,
-            t.VID_TAXII_XML_11, poll_request.to_xml(),
-            port=port)
-        taxii_message = t.get_message_from_http_response(http_response,
-            poll_request.message_id)
-        if isinstance(taxii_message, tm11.StatusMessage):
-            print("TAXII connection error! %s" % (taxii_message.message))
-        elif isinstance(taxii_message, tm11.PollResponse):
-            for content_block in taxii_message.content_blocks:
-                try:
-                    stix_package = taxii_content_block_to_stix(content_block)
-                    (raw_stix_objs, raw_cybox_objs) = \
-                        process_stix_pkg(stix_package)
-                    for k in raw_stix_objs.keys():
-                        cooked_stix_objs[k].update(raw_stix_objs[k])
-                    for k in raw_cybox_objs.keys():
-                        if not k in cooked_cybox_objs.keys():
-                            cooked_cybox_objs[k] = set()
-                        cooked_cybox_objs[k].update(raw_cybox_objs[k])
-                except:
-                    next
+        try:
+            http_response = client.callTaxiiService2(
+                host, endpoint,
+                t.VID_TAXII_XML_11, poll_request.to_xml(),
+                port=port)
+            taxii_message = t.get_message_from_http_response(http_response,
+                poll_request.message_id)
+            if isinstance(taxii_message, tm11.StatusMessage):
+                print("TAXII connection error! %s" % (taxii_message.message))
+            elif isinstance(taxii_message, tm11.PollResponse):
+                for content_block in taxii_message.content_blocks:
+                    try:
+                        stix_package = taxii_content_block_to_stix(content_block)
+                        (raw_stix_objs, raw_cybox_objs) = \
+                            process_stix_pkg(stix_package)
+                        for k in raw_stix_objs.keys():
+                            cooked_stix_objs[k].update(raw_stix_objs[k])
+                        for k in raw_cybox_objs.keys():
+                            if not k in cooked_cybox_objs.keys():
+                                cooked_cybox_objs[k] = set()
+                            cooked_cybox_objs[k].update(raw_cybox_objs[k])
+                    except:
+                        next
+        except:
+            next
         if not quiet:
             progress.update(i)
     if not quiet:
