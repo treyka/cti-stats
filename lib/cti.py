@@ -203,28 +203,28 @@ def print_stats(cooked_stix_objs, cooked_cybox_objs):
     '''print cti stats'''
     print('+-------STIX stats------------------------------------------------------+')
     stix_total = 0
-    for k in cooked_stix_objs.keys():
+    for k in sorted(cooked_stix_objs.keys()):
         stix_total += len(cooked_stix_objs[k])
     print('+-------STIX percentages------------------------------------------------+')
-    for k in cooked_stix_objs.keys():
+    for k in sorted(cooked_stix_objs.keys()):
         if len(cooked_stix_objs[k]):
             print("%s: %s" % (k, '{1:.{0}f}%'.format(2, (float(len(cooked_stix_objs[k]) * 100) / float(stix_total)))))
     print('+-------STIX counts-----------------------------------------------------+')
-    for k in cooked_stix_objs.keys():
+    for k in sorted(cooked_stix_objs.keys()):
         if len(cooked_stix_objs[k]):
             print("%s: %i" % (k, len(cooked_stix_objs[k])))
     print("Total STIX objects: %i" % (stix_total))
     print('')
     print('+-------CybOX stats-----------------------------------------------------+')
     cybox_total = 0
-    for k in cooked_cybox_objs.keys():
+    for k in sorted(cooked_cybox_objs.keys()):
         cybox_total += len(cooked_cybox_objs[k])
     print('+-------CybOX percentages-----------------------------------------------+')
-    for k in cooked_cybox_objs.keys():
+    for k in sorted(cooked_cybox_objs.keys()):
         if len(cooked_cybox_objs[k]):
             print("%s: %s" % (k, '{1:.{0}f}%'.format(2, (float(len(cooked_cybox_objs[k]) * 100) / float(cybox_total)))))
     print('+-------CybOX counts----------------------------------------------------+')
-    for k in cooked_cybox_objs.keys():
+    for k in sorted(cooked_cybox_objs.keys()):
         if len(cooked_cybox_objs[k]):
             print("%s: %i" % (k, len(cooked_cybox_objs[k])))
     print("Total CybOX objects: %i" % (cybox_total))
