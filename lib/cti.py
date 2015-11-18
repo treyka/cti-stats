@@ -182,10 +182,6 @@ def taxii_poll(host=None, port=None, endpoint=None, collection=None, user=None, 
         client.setAuthCredentials(
             {'username': user,
              'password': passwd})
-    # cooked_stix_objs = {'Campaign': set(), 'Course of Action': set(), \
-    #                     'Exploit Target': set(), 'Incident': set(), \
-    #                     'Indicator': set(), 'Threat Actor': set(), \
-    #                     'TTP': set(), 'Report': set()}
     cooked_stix_objs = {'campaigns': set(), 'courses_of_action': set(), \
                         'exploit_targets': set(), 'incidents': set(), \
                         'indicators': set(), 'threat_actors': set(), \
@@ -354,7 +350,95 @@ def dir_walk(target_dir=None, quiet=None):
                         'exploit_targets': set(), 'incidents': set(), \
                         'indicators': set(), 'threat_actors': set(), \
                         'ttps': set()}
-    cooked_cybox_objs = dict()
+    cooked_cybox_objs = {'AccountObjectType': set(),
+                      'AddressObjectType': set(),
+                      'APIObjectType': set(),
+                      'ArchiveFileObjectType': set(),
+                      'ARPCacheObjectType': set(),
+                      'ArtifactObjectType': set(),
+                      'ASObjectType': set(),
+                      'CodeObjectType': set(),
+                      'CustomObjectType': set(),
+                      'DeviceObjectType': set(),
+                      'DiskObjectType': set(),
+                      'DiskPartitionObjectType': set(),
+                      'DNSCacheObjectType': set(),
+                      'DNSQueryObjectType': set(),
+                      'DNSRecordObjectType': set(),
+                      'DomainNameObjectType': set(),
+                      'EmailMessageObjectType': set(),
+                      'FileObjectType': set(),
+                      'GUIDialogboxObjectType': set(),
+                      'GUIObjectType': set(),
+                      'GUIWindowObjectType': set(),
+                      'HostnameObjectType': set(),
+                      'HTTPSessionObjectType': set(),
+                      'ImageFileObjectType': set(),
+                      'LibraryObjectType': set(),
+                      'LinkObjectType': set(),
+                      'LinuxPackageObjectType': set(),
+                      'MemoryObjectType': set(),
+                      'MutexObjectType': set(),
+                      'NetworkConnectionObjectType': set(),
+                      'NetworkFlowObjectType': set(),
+                      'NetworkPacketObjectType': set(),
+                      'NetworkRouteEntryObjectType': set(),
+                      'NetRouteObjectType': set(),
+                      'NetworkSocketObjectType': set(),
+                      'NetworkSubnetObjectType': set(),
+                      'PDFFileObjectType': set(),
+                      'PipeObjectType': set(),
+                      'PortObjectType': set(),
+                      'ProcessObjectType': set(),
+                      'ProductObjectType': set(),
+                      'SemaphoreObjectType': set(),
+                      'SMSMessageObjectType': set(),
+                      'SocketAddressObjectType': set(),
+                      'SystemObjectType': set(),
+                      'UnixFileObjectType': set(),
+                      'UnixNetworkRouteEntryObjectType': set(),
+                      'UnixPipeObjectType': set(),
+                      'UnixProcessObjectType': set(),
+                      'UnixUserAccountObjectType': set(),
+                      'UnixVolumeObjectType': set(),
+                      'URIObjectType': set(),
+                      'URLHistoryObjectType': set(),
+                      'UserAccountObjectType': set(),
+                      'UserSessionObjectType': set(),
+                      'VolumeObjectType': set(),
+                      'WhoisObjectType': set(),
+                      'WindowsComputerAccountObjectType': set(),
+                      'WindowsCriticalSectionObjectType': set(),
+                      'WindowsDriverObjectType': set(),
+                      'WindowsEventLogObjectType': set(),
+                      'WindowsEventObjectType': set(),
+                      'WindowsExecutableFileObjectType': set(),
+                      'WindowsFilemappingObjectType': set(),
+                      'WindowsFileObjectType': set(),
+                      'WindowsHandleObjectType': set(),
+                      'WindowsHookObjectType': set(),
+                      'WindowsKernelHookObjectType': set(),
+                      'WindowsKernelObjectType': set(),
+                      'WindowsMailslotObjectType': set(),
+                      'WindowsMemoryPageRegionObjectType': set(),
+                      'WindowsMutexObjectType': set(),
+                      'WindowsNetworkRouteEntryObjectType': set(),
+                      'WindowsNetworkShareObjectType': set(),
+                      'WindowsPipeObjectType': set(),
+                      'WindowsPrefetchObjectType': set(),
+                      'WindowsProcessObjectType': set(),
+                      'WindowsRegistryKeyObjectType': set(),
+                      'WindowsSemaphoreObjectType': set(),
+                      'WindowsServiceObjectType': set(),
+                      'WindowsSystemObjectType': set(),
+                      'WindowsSystemRestoreObjectType': set(),
+                      'WindowsTaskObjectType': set(),
+                      'WindowsThreadObjectType': set(),
+                      'WindowsUserAccountObjectType': set(),
+                      'WindowsVolumeObjectType': set(),
+                      'WindowsWaitableTimerObjectType': set(),
+                      'X509CertificateObjectType': set(),
+    }
     for file_ in files:
         try:
             stix_package = file_to_stix(file_)
@@ -363,8 +447,6 @@ def dir_walk(target_dir=None, quiet=None):
             for k in raw_stix_objs.keys():
                 cooked_stix_objs[k].update(raw_stix_objs[k])
             for k in raw_cybox_objs.keys():
-                if not k in cooked_cybox_objs.keys():
-                    cooked_cybox_objs[k] = set()
                 cooked_cybox_objs[k].update(raw_cybox_objs[k])
             if not quiet:
                 progress.update(i)
@@ -377,6 +459,10 @@ def dir_walk(target_dir=None, quiet=None):
 
 def print_stats(cooked_stix_objs, cooked_cybox_objs):
     '''print cti stats'''
+    stix_obj_names = {'campaigns': 'Campaign', 'courses_of_action': 'Course of Action',
+                      'exploit_targets': 'Exploit Target', 'incidents': 'Incident',
+                      'indicators': 'Indicator', 'threat_actors': 'Threat Actor',
+                      'ttps': 'TTP'}
     print('+-------STIX stats------------------------------------------------------+')
     stix_total = 0
     for k in sorted(cooked_stix_objs.keys()):
@@ -384,12 +470,12 @@ def print_stats(cooked_stix_objs, cooked_cybox_objs):
     print('+-------STIX percentages------------------------------------------------+')
     for k in sorted(cooked_stix_objs.keys()):
         if len(cooked_stix_objs[k]):
-            print("%s: %s" % (k, '{1:.{0}f}%'.format(2, (float(len(cooked_stix_objs[k]) * 100) / float(stix_total)))))
+            print("%s: %s" % (stix_obj_names[k], '{1:.{0}f}%'.format(2, (float(len(cooked_stix_objs[k]) * 100) / float(stix_total)))))
         else:
-            print("%s" % (k)  + ': 0.00%')
+            print("%s" % (stix_obj_names[k])  + ': 0.00%')
     print('+-------STIX counts-----------------------------------------------------+')
     for k in sorted(cooked_stix_objs.keys()):
-        print("%s: %i" % (k, len(cooked_stix_objs[k])))
+        print("%s: %i" % (stix_obj_names[k], len(cooked_stix_objs[k])))
     print("Total STIX objects: %i" % (stix_total))
     print('')
     print('+-------CybOX stats-----------------------------------------------------+')
