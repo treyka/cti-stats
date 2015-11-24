@@ -76,6 +76,15 @@ Recursing a directory
    * For an example: `./cti-stats --target-dir=~/cti_sample_data/ --file-stats`
 
 
+Supported STIX versions
+=======================
+* cti-stats currently only supports STIX 1.1.1 data (which is what the
+  vast preponderance of the data out there uses.) Supporting multiple
+  versions of STIX simultaneously is a non-trivial effort. Moreover,
+  the development and maintenance of cti-stats is a best-effort side
+  project. Pull requests and/or Github issues welcome.
+
+
 What to do with your analysis results
 =====================================
 1. Depending on the quantity of CTI data in your repository, you might
