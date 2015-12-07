@@ -78,11 +78,12 @@ Recursing a directory
 
 Supported STIX versions
 =======================
-* cti-stats currently only supports STIX 1.1.1 data (which is what the
-  vast preponderance of the data out there uses.) Supporting multiple
-  versions of STIX simultaneously is a non-trivial effort. Moreover,
-  the development and maintenance of cti-stats is a best-effort side
-  project. Pull requests and/or Github issues welcome.
+* cti-stats attempts to support all versions of STIX (1.0, 1.0.1, 1.1,
+  1.1.1, and 1.2) via the MITRE
+  [stix-ramrod](https://github.com/STIXProject/stix-ramrod) library.
+  This works well in testing so far but there's no guarantee that it
+  will support all conceivable STIX variants so be warned that your
+  mileage may vary.
 
 
 What to do with your analysis results
