@@ -24,24 +24,37 @@ import libtaxii as t
 import libtaxii.clients as tc
 import libtaxii.messages_11 as tm11
 from stix.core import STIXPackage
+from stix.utils.parser import UnsupportedVersionError
 from util import poll_start, nowutc, find_files, resolve_path
 from StringIO import StringIO
 from progressbar import ProgressBar, ETA, Percentage, Bar, RotatingMarker
 import datetime
 import pytz
+import ramrod
 
 
 def taxii_content_block_to_stix(content_block):
     '''transform taxii content blocks into stix packages'''
     xml = StringIO(content_block.content)
-    stix_package = STIXPackage.from_xml(xml)
+    try:
+        stix_package = STIXPackage.from_xml(xml)
+    except UnsupportedVersionError as ex:
+        updated = ramrod.update(xml)
+        updated_xml = updated.document.as_stringio()
+        stix_package = STIXPackage.from_xml(updated_xml)
     xml.close()
     return stix_package
 
 
 def file_to_stix(file_):
     '''transform files into stix packages'''
-    return STIXPackage.from_xml(file_)
+    try:
+        stix_package = STIXPackage.from_xml(file_)
+    except UnsupportedVersionError as ex:
+        updated = ramrod.update(file_)
+        updated_xml = updated.document.as_stringio()
+        stix_package = STIXPackage.from_xml(updated_xml)
+    return stix_package
 
 
 def process_stix_pkg(stix_package):
